@@ -1,0 +1,7 @@
+[package]
+name = "testing"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+enum_macro_gen = { version = "*", features = ["all"] }

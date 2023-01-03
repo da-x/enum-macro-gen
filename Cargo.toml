@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+    "macro",
+    "testing",
+]
+
+[patch.crates-io]
+enum_macro_gen = { path = "macro" }
+testing = { path = "testing" }
