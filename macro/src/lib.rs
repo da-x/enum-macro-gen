@@ -141,7 +141,15 @@ pub fn call_match_enum_refs(input: TokenStream) -> TokenStream {
                     arms.push(arm);
                 }
 
+                let attr = if enum_macro.export {
+                    quote! { #[macro_export] }
+                } else {
+                    quote! { }
+                };
+
                 quote! {
+                    #attr
+                    #[macro_export]
                     macro_rules! #macro_name {
                         ($self:expr, $var:expr) => {
                             match $var {
@@ -175,6 +183,7 @@ struct EnumMacro {
 struct Macro {
     name: Ident,
     arm: TokenStream2,
+    export: bool,
 }
 
 impl Parse for EnumMacro {
@@ -185,6 +194,15 @@ impl Parse for EnumMacro {
         let mut macros = vec![];
         while !content.is_empty() {
             let name: Ident = content.parse()?;
+            let mut export = false;
+            if content.parse::<Token![:]>().is_ok() {
+                let modifier: Ident = content.parse()?;
+                if modifier.to_string() == "export" {
+                    export = true;
+                } else {
+                    return Err(syn::Error::new(modifier.span(), "expected `export`"));
+                }
+            }
             content.parse::<Token![=]>()?;
 
             let mmacro;
@@ -196,7 +214,7 @@ impl Parse for EnumMacro {
 
             let ts: TokenStream2 = mmacro.parse()?;
 
-            macros.push(Macro { name, arm: ts });
+            macros.push(Macro { name, arm: ts, export });
         }
 
         Ok(EnumMacro { macros })
