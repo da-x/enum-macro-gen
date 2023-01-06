@@ -1,7 +1,7 @@
 # enum_macro_gen &emsp; [![Build Status]][actions] [![Latest Version]][crates.io] [![Docs badge]][Docs link] [![License badge]][License link]
 
-[Build Status]: https://github.com/da-x/enum_macro_gen/actions/workflows/test.yml/badge.svg
-[actions]: https://github.com/da-x/enum_macro_gen/actions
+[Build Status]: https://github.com/da-x/enum-macro-gen/actions/workflows/test.yml/badge.svg
+[actions]: https://github.com/da-x/enum-macro-gen/actions
 [Latest Version]: https://img.shields.io/crates/v/enum_macro_gen.svg
 [crates.io]: https://crates.io/crates/enum_macro_gen
 [License badge]: https://img.shields.io/badge/license-MIT%2FApache--2.0-blue.svg
