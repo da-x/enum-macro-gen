@@ -8,17 +8,24 @@ struct Item {
 
 #[derive(EnumMacroGen)]
 #[enum_macro[handle_test={match: $self.handle_$variant($fields);}]]
+#[enum_macro[handle_test2={match: $self.common(#variant);}]]
 enum Test {
     Foo(Item),
     Double(Item, Box<Test>),
     Bar,
 }
 
+
 struct Main {}
 
 impl Main {
     fn test(&self, test: &Test) {
         handle_test! {self, test}
+        handle_test2! {self, test}
+    }
+
+    fn common(&self, s: &str) {
+        println!("{}", s);
     }
 
     fn handle_foo(&self, item: &Item) {}
@@ -28,4 +35,6 @@ impl Main {
     fn handle_bar(&self) {}
 }
 
-fn main() {}
+fn main() {
+    Main{}.test(&Test::Bar);
+}

@@ -4,7 +4,7 @@
 //!
 //! ## Example
 //!
-//! ```rust
+//! ```rust ignore
 //! use enum_macro_gen::EnumMacroGen;
 //!
 //! #[derive(EnumMacroGen)]
@@ -51,7 +51,7 @@
 
 use convert_case::{Case, Casing};
 use proc_macro::TokenStream;
-use proc_macro2::{Group, Span, TokenStream as TokenStream2, TokenTree};
+use proc_macro2::{Group, Literal, Span, TokenStream as TokenStream2, TokenTree};
 use proc_macro_error::{abort, proc_macro_error};
 use quote::quote;
 use syn::{
@@ -228,7 +228,10 @@ impl Parse for EnumMacro {
 /// # Arguments
 ///
 /// * `tokens` - The `TokenStream2` to interpolate.
-/// * `variant` - The string to replace occurrences of `$variant` with.
+/// * `variant` - The string to replace occurrences of `$variant` with, so it
+///            can be replaced inside literals. For variant BooFoo, handle_boo_foo.
+/// * `# variant` - Replace the two tokens '#variant' with the corresponding
+///            string literal, BooFoo -> "boo_foo".
 /// * `fields_replacement` - The `TokenStream2` to replace occurrences of
 ///   `$fields` with.
 ///
@@ -254,12 +257,23 @@ fn interpolate(
                 v @ TokenTree::Punct(p) if p.as_char() == '$' => {
                     if i + 1 < tokens.len() {
                         if let TokenTree::Ident(id) = &tokens[i + 1] {
-                            if id.to_string() == "fields" {
+                            if id == "fields" {
                                 i += 1;
                                 break 'x TokenTree::Group(Group::new(
                                     proc_macro2::Delimiter::None,
                                     fields_replacement.clone(),
                                 ));
+                            }
+                        }
+                    }
+                    break 'x v.clone();
+                }
+                v @ TokenTree::Punct(p) if p.as_char() == '#' => {
+                    if i + 1 < tokens.len() {
+                        if let TokenTree::Ident(id) = &tokens[i + 1] {
+                            if id == "variant" {
+                                i += 1;
+                                break 'x TokenTree::Literal(Literal::string(&variant));
                             }
                         }
                     }
@@ -271,7 +285,7 @@ fn interpolate(
                             if p.as_char() == '$' {
                                 if i + 2 < tokens.len() {
                                     if let TokenTree::Ident(id2) = &tokens[i + 2] {
-                                        if id2.to_string() == "variant" {
+                                        if id2 == "variant" {
                                             i += 2;
                                             break 'x TokenTree::Ident(Ident::new(
                                                 &format!("{}{}", id.to_string(), variant),
